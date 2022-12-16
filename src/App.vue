@@ -1,26 +1,36 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
+<script setup>
+import * as yup from "yup";
+import Formik from "./components/Formik.vue";
+import Field from "./components/Field.vue";
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+const initialValues = {
+  name: "",
+};
+const validationSchema = yup.object({
+  name: yup.string().min(3).max(15).required(),
+});
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+const onSubmit = (values) => {
+  alert("Formulaire envoyé \n" + JSON.stringify(values));
 }
+
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<template >
+
+  <h1>Custom Formik Project</h1>
+  <Formik v-slot="{submit,errors, isSubmitting}" :initialValues="initialValues"
+          :validate="(values) => validationSchema.validateSync(values)" @submit="onSubmit">
+    <form @submit.prevent="submit">
+      <div>
+        <Field name="name" as="input"/>
+        <button :disabled="isSubmitting" type="submit">Submit</button>
+      </div>
+      <div>
+        <template v-for="error in errors" v-bind:key="error">
+          <p style="color: #d95a5a">{{ error }}</p>
+        </template>
+      </div>
+    </form>
+  </Formik>
+</template>
