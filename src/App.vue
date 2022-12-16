@@ -11,20 +11,20 @@ const validationSchema = yup.object({
 });
 
 const onSubmit = (values) => {
-  alert("Formulaire envoyé \n" + JSON.stringify(values));
-}
+  console.log(values);
+};
 
 </script>
 
 <template >
-
   <h1>Custom Formik Project</h1>
-  <Formik v-slot="{submit,errors, isSubmitting}" :initialValues="initialValues"
-          :validate="(values) => validationSchema.validateSync(values)" @submit="onSubmit">
-    <form @submit.prevent="submit">
+  <Formik v-slot="{handleSubmit, errors, isSubmitting}" :initialValues="initialValues"
+          :validate="() => validationSchema.validateSync(values)" @submit="onSubmit">
+    <form @submit.prevent="handleSubmit">
       <div>
         <Field name="name" as="input"/>
-        <button :disabled="isSubmitting" type="submit">Submit</button>
+        <br>
+        <button type="submit" :disabled="isSubmitting">Submit</button>
       </div>
       <div>
         <template v-for="error in errors" v-bind:key="error">
