@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import {defineProps, inject} from "vue";
 const props = defineProps({
