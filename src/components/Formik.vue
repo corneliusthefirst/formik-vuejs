@@ -1,61 +1,68 @@
 <template>
-    <div>
-        <slot
-            :values="values"
-            :errors="errors"
-            :handleChange="handleChange"
-            :handleSubmit="handleSubmit"
-            :isSubmitting="isSubmitting"
-        ></slot>
-    </div>
+    <slot
+        :values="values"
+        :handleSubmit="handleSubmit"
+        :isSubmitting="isSubmitting"
+        :errors="errors"
+        :set="set"
+    ></slot>
 </template>
 
-<script>
-import { reactive, ref } from 'vue';
+<script setup>
+import { ref, watch, provide, defineProps } from "vue";
 
-export default {
-    props: {
-        initialValues: {
-            type: Object,
-            required: true,
-        },
-        onSubmit: {
-            type: Function,
-            required: true,
-        },
-        validate: {
-            type: Function,
-            required: false,
-        },
+const props = defineProps({
+    initialValues: {
+        type: Object,
+        required: true,
     },
-    setup(props) {
-        const values = reactive(props.initialValues);
-        const errors = reactive({});
-        const isSubmitting = ref(false);
-
-        const handleChange = (e) => {
-            const { name, value } = e.target;
-            values[name] = value;
-        };
-
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            isSubmitting.value = true;
-            errors.value = await props.validate(values);
-            if (Object.keys(errors.value).length === 0) {
-                await props.onSubmit(values);
-            }
-            isSubmitting.value = false;
-        };
-
-        return {
-            values,
-            errors,
-            handleChange,
-            handleSubmit,
-            isSubmitting,
-        };
+    validate: {
+        type: Function,
+        default: () => {},
     },
+    onSubmit: {
+        type: Function,
+        required: true,
+    },
+});
+
+const values = ref(props.initialValues);
+
+const errors = ref([]);
+
+const isSubmitting = ref(false);
+
+const handleSubmit = () => {
+    try {
+        props.validate(values.value);
+    } catch (e) {
+        errors.value = e.errors;
+    } finally {
+        if (Object.keys(errors.value).length === 0) {
+            props.onSubmit(values.value);
+        }
+    }
+};
+const set = (name, value) => {
+    console.log(name, value);
+    values.value = { ...values.value, [name]: value };
+    errors.value = [];
 };
 
+provide("formikProvider", { set, values });
+
+watch(
+    () => values.value,
+    (newValues) => {
+        errors.value = [];
+        try {
+            props.validate(newValues);
+        } catch (e) {
+            errors.value = e.errors;
+        }
+    },
+    { deep: true }
+);
+
 </script>
+

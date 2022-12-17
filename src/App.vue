@@ -1,66 +1,38 @@
-<template>
-  <div id="app">
-    <Formik
-      :initialValues="{ name: '', email: '' }"
-      :onSubmit="onSubmit"
-      :validate="validate"
-    >
-      <template #default="{ values, errors, handleChange, handleSubmit, isSubmitting }">
-        <form @submit="handleSubmit">
-          <div>
-            <label for="name">Name</label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              :value="values.name"
-              @input="handleChange"
-            />
-            <div v-if="errors.name">{{ errors.name }}</div>
-          </div>
-          <div>
-            <label for="email">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              :value="values.email"
-              @input="handleChange"
-            />
-            <div v-if="errors.email">{{ errors.email }}</div>
-          </div>
-          <button type="submit" :disabled="isSubmitting">Submit</button>
-        </form>
-      </template>
-    </Formik>
-  </div>
-</template>
+<script setup>
+import * as Yup from "yup";
+import Formik from "@/components/Formik.vue";
+import Field from "@/components/Field.vue";
 
-<script>
-import FormikVue from './components/Formik.vue';
+const initialValues = {
+  name: "",
+  email: "",
+};
+const validationSchema = Yup.object({
+  name: Yup.string().min(3).max(15).required(),
+  email: Yup.string().email().required(),
+});
 
-export default {
-  name: 'App',
-  components: {
-    Formik: FormikVue,
-  },
-  methods: {
-    onSubmit(values) {
-      console.log('onSubmit', values);
-    },
-    validate(values) {
-      const errors = {};
-      if (!values.name) {
-        errors.name = 'Required';
-      }
-      if (!values.email) {
-        errors.email = 'Required';
-      } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-        errors.email = 'Invalid email address';
-      }
-      return errors;
-    },
-  },
+const onSubmit = (values) => {
+  alert(JSON.stringify(values, null, 2));
 };
 
 </script>
+
+<template>
+  <h1>Custom Formik Project</h1>
+  <Formik v-slot="{handleSubmit, errors, isSubmitting}" :initialValues="initialValues"
+          :validate="(values) => validationSchema.validateSync(values)" @submit="onSubmit">
+    <form @submit.prevent="handleSubmit">
+      <div>
+        <Field name="name" as="input"/>
+        <br>
+        <Field name="email" as="input"/>
+        <br>
+        <button :disabled="isSubmitting" type="submit">Submit</button>
+      </div>
+      <div v-if="errors" style="color: red">
+        <p v-for="error in errors" v-bind:key="error">{{error}}</p>
+      </div>
+    </form>
+  </Formik>
+</template>
