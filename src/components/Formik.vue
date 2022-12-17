@@ -51,7 +51,7 @@ const set = (name, value) => {
 
 provide("formikProvider", { set, values });
 
-/*watch(
+watch(
     () => values.value,
     (newValues) => {
         errors.value = [];
@@ -62,7 +62,7 @@ provide("formikProvider", { set, values });
         }
     },
     { deep: true }
-);*/
+);
 
 </script>
 
